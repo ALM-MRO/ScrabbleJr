@@ -1,0 +1,28 @@
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+void resetBoard(int size, char letter){
+    cout << "  ";
+    for (int i = 65; i < size + 65; i++){
+        cout << "   " << char(i);
+    }
+
+
+    for (int i = 1; i < size + 1 ; i++) {
+        if (i < 10)
+            cout << "\n" << i << "  |";
+        else cout << "\n" << i << " |";
+        for (int i = 0; i < size; i++) {
+            cout << " " << letter << " |";
+        }
+    }
+}
+int main () {
+    int size;
+    char letter = ' ';
+    cout << "Choose the size of your board\n";
+    cin >> size;
+    resetBoard(size, letter);
+    return 0;
+}
