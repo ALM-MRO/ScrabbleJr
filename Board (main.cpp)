@@ -66,8 +66,12 @@ void printBoard(int lines, int columns){
 
 void resetBoard(int lines, int columns){
     board.resize(lines);
-    for(int i = 0; i < lines; i++)
+    for (int i = 0; i < lines; i++)
         board[i].resize(columns);
+
+    for (int i = 0; i < lines; i++)
+        for (int k = 0; k < columns; k++)
+            board[i][k] = ' ';
 }
 
 void choosingWords(){
