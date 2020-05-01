@@ -46,6 +46,11 @@ void readFile(){
 }
 
 void resetBoard(int lines, int columns, char letter){
+    board.resize(lines);
+    for(int i = 0; i < lines; i++){
+        board[i].resize(columns);
+    }
+
     setColor(YELLOW, BLACK);
     cout << "  ";
     for (int i = 0; i < columns ; i++){
@@ -57,8 +62,8 @@ void resetBoard(int lines, int columns, char letter){
         setColor(YELLOW, BLACK);
         cout << "\n " << char(65 + i) << " ";
         setColor(BLACK, YELLOW);
-        for (int i = 0; i < columns; i++)
-            cout << " " << letter << " ";
+        for (int k = 0; k < columns; k++)
+            cout << " " << board[i][k] << " ";
     }
     setColor(WHITE, BLACK);
 }
