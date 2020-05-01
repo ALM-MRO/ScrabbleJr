@@ -4,7 +4,7 @@
 #include <time.h>
 #include <ctime>
 #include <cstdlib>
-//#include<vector>
+#include<vector>
 #include<stdlib.h>
 #include "Word.h"
 #define BLACK 0
