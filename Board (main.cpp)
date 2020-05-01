@@ -4,6 +4,8 @@
 #include <time.h>
 #include <ctime>
 #include <cstdlib>
+//#include<vector>
+#include<stdlib.h>
 #include "Word.h"
 #define BLACK 0
 #define BLUE 1
@@ -24,14 +26,23 @@
 
 using namespace std;
 
+string dictionary[109581];
+
 void setColor(int textColor, int bgColor) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (textColor + (bgColor * 16)));
 }
 
 void readFile(){
+    string srg;
+    int count = 0;
     ifstream filestream("WORDS.TXT");
-    if (filestream.is_open()) cout << "Nice girl";
-    else cout << "Ok boomer";
+    if (filestream.is_open()) {
+        while (getline(filestream, srg)){
+            dictionary[count] = srg;
+            count++;
+        }
+    }
+    else cout << "Failed to open the file";
 }
 
 void resetBoard(int lines, int columns, char letter){
@@ -49,18 +60,51 @@ void resetBoard(int lines, int columns, char letter){
         for (int i = 0; i < columns; i++)
             cout << " " << letter << " ";
     }
+    setColor(WHITE, BLACK);
 }
 
-int main() {
+void choosingWords(){
+    string temporary_words[10];
+    int random_number;
+    int chosen_index = 11;
+    string chosen_word;
+
+    cout << "\n\nNow you may choose the words you'd like to place on it.(1-10)\n"; // ask Phil
+
+    readFile();
+
+    for (int i = 0; i < 10; i++) { //choosing 10 random words from dictionary
+        random_number = rand() % 109581;
+        temporary_words[i] = dictionary[random_number];
+        cout << i + 1 << ") " << temporary_words[i] << "\n";
+    }
+    while (chosen_index < 1 | chosen_index > 10) { //user chooses 1 out of the 10 suggested words
+        cin >> chosen_index;
+        if (chosen_index < 1 | chosen_index > 10)
+            cout << "Choose a number between 1 and 10.\n";
+    }
+    chosen_index--;
+    chosen_word = temporary_words[chosen_index];
+    cout << "You have chosen the word '"<< chosen_word << "'."; //print chosen word
+}
+
+
+void choosingBoard(){
     int lines, columns;
     char letter = ' ';
-    cout << "Choose the size of the board you wish to build.\n" <<
-    "Lines: ";
-    cin >> lines;
-    cout << "\nColumns: ";
-    cin >> columns;
-    resetBoard(lines, columns, letter);
+    string chosen_word;
 
-    _sleep(200000);
+    cout << "Choose the size of the board you wish to build.\n" << "Lines:";
+    cin >> lines;
+    cout << "\nColumns:";
+    cin >> columns;
+    cout << "This is your initial board.\n";
+    resetBoard(lines, columns, letter);
+}
+int main() {
+    //_sleep(200000);
+    srand(time(0));
+    choosingBoard();
+    choosingWords();
     return 0;
 }
