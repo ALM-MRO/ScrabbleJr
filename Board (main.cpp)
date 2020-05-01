@@ -27,6 +27,7 @@
 using namespace std;
 
 string dictionary[109581];
+vector <vector <char>> board;
 
 void setColor(int textColor, int bgColor) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (textColor + (bgColor * 16)));
