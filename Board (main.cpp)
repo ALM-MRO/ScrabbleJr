@@ -1,0 +1,66 @@
+#include <iostream>
+#include <fstream>
+#include <windows.h>
+#include <time.h>
+#include <ctime>
+#include <cstdlib>
+#include "Word.h"
+#define BLACK 0
+#define BLUE 1
+#define GREEN 2
+#define CYAN 3
+#define RED 4
+#define MAGENTA 5
+#define BROWN 6
+#define LIGHTGRAY 7
+#define DARKGRAY 8
+#define LIGHTBLUE 9
+#define LIGHTGREEN 10
+#define LIGHTCYAN 11
+#define LIGHTRED 12
+#define LIGHTMAGENTA 13
+#define YELLOW 14
+#define WHITE 15
+
+using namespace std;
+
+void setColor(int textColor, int bgColor) {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (textColor + (bgColor * 16)));
+}
+
+void readFile(){
+    ifstream filestream("WORDS.TXT");
+    if (filestream.is_open()) cout << "Nice girl";
+    else cout << "Ok boomer";
+}
+
+void resetBoard(int lines, int columns, char letter){
+    setColor(YELLOW, BLACK);
+    cout << "  ";
+    for (int i = 0; i < columns ; i++){
+        cout << "  " << char('a' + i);
+    }
+    cout << "  ";
+
+    for (int i = 0; i < lines ; i++) {
+        setColor(YELLOW, BLACK);
+        cout << "\n " << char(65 + i) << " ";
+        setColor(BLACK, YELLOW);
+        for (int i = 0; i < columns; i++)
+            cout << " " << letter << " ";
+    }
+}
+
+int main() {
+    int lines, columns;
+    char letter = ' ';
+    cout << "Choose the size of the board you wish to build.\n" <<
+    "Lines: ";
+    cin >> lines;
+    cout << "\nColumns: ";
+    cin >> columns;
+    resetBoard(lines, columns, letter);
+
+    _sleep(200000);
+    return 0;
+}
