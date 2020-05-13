@@ -12,34 +12,36 @@
 #include "Rules.h"
 #include <bits/stdc++.h>
 #include <filesystem>
+#include <fstream>
+#include <algorithm>
 
 using namespace std;
 
 int main() {
-    //_sleep(200000);
-    srand(time(0));
+    clock_t start = clock();
+    srand(clock());
+    string file;
+
     cout << "WELCOME TO SCRABBLE JUNIOR BODY BUILDER" << endl ;
 
     Board board = Board();
 
-    while(!board.validation.finishBoard()) {
+    while( !board.getValidation().finishBoard() ) {
 
         board.listOfWords();
-        board.validation.changeFlag(false);
 
-        while(!board.validation.verifyRules()){
+        while( !board.getValidation().verifyRules() ){
             board.choosingIndex();
-            if (board.validation.finishBoard()) break;
+            if ( board.getValidation().finishBoard() ) break;
             board.choosingInfo();
             board.changeBoard();
         }
 
-        if(!board.validation.finishBoard())
+        if( !board.getValidation().finishBoard() )
             board.printBoard();
 
-        if (board.validation.playAgain()){
-            board.validation.flagEnd(false);
-            board.file_word.createFile();
+        if ( board.getValidation().playAgain() ){
+            board.getValidation().flagEnd(false);
             board.boardSize();
             board.printBoard();
         }
