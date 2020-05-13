@@ -10,44 +10,50 @@
 #include <vector>
 #include "Rules.h"
 #include "Words.h"
+#include <fstream>
+#include <map>
+
 
 using namespace std;
 
 class Board {
-public:
     vector <vector <char>> board;
 
     int lines, columns;
-    int l, c;
+
     string chosen_word = "";
     string temporary_words[10];
     string user_word;
+    string file_name;
 
     int chosen_index;
     int random_number;
     int count_letter;
 
-    void printBoard();
-    void resetBoard(int lines, int columns);
-    void readFile();
-    void listOfWords();
-    void choosingInfo();
-    void choosingIndex();
-    void changeBoard();
-    void boardSize();
-    bool findWordDic(string u_word);
-
     vector<string> dictionary;
 
     int size,  idx;
-    char pos_x, pos_y, dir, last_dir;
+    char pos_x, pos_y, dir;
 
     Rules validation ;
     Words file_word;
-    Board(int lines, int columns);
+
+public:
+    void chooseIntersection();
+    void readFile();
+    void boardSize();
+    void printBoard();
+    void listOfWords();
+    void changeBoard();
+    void choosingInfo();
+    void choosingIndex();
+
+    bool findWordDic(string u_word);
+    void resetBoard(int lines, int columns);
+
+    Rules getValidation();
+
     Board();
 };
-
-
 
 #endif //UNTITLED10_BOARD_H
