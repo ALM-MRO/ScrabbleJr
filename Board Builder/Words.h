@@ -13,17 +13,19 @@
 using namespace std;
 
 class Words{
-public:
     ofstream out_file;
-    char line, column, direction;
-    void createFile();
+    string word_info;
+    char line, column;
+    vector <vector<string>> words_file;
+    vector<string> board_info;
+
+public:
+    void createFile(string name);
     void writeInFile(char pos_x, char pos_y, char dir, string word);
     void sizeBoardFile(int lines, int columns);
-    string word;
-    Words(string word, char line, char column, char direction);
+
+
     Words();
-
-
 };
 
 
