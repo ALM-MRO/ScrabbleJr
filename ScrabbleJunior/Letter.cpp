@@ -7,18 +7,11 @@
 Letter::Letter(){
 
 }
-Letter::Letter(int line, int column, char let, char word_direction, char state, bool intersection){
-    this -> line = line;
-    this -> column = column;
+Letter::Letter(char let, char word_direction, char state, bool intersection){
     this -> let = let;
     this -> word_direction = word_direction;
     this -> intersection = intersection;
-    this -> state = state;                  // P = possible & unfilled
-                                            // I = impossible
-                                            // E = empty
-                                            // F = filled/permanent
-
-
+    this -> state = state;                  // P = possible & unfilled; I = impossible; E = empty; F = filled/permanent
 
 }
 

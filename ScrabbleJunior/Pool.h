@@ -14,15 +14,31 @@
 
 
 class Pool {
-    std::vector <char> pl;
+    std::vector <char> pl; // vector of letters
 public:
+    // constructor
     Pool();
+
+    // functions
+
+    /*
+ * called when after board file
+ * called when player wnats to exchanges letters with the pool
+ */
     void addLettersToPool(std::vector<std::vector<Letter>> brd);
+
+    /*
+     * returns a vector of 7 random letters to each player in the beginning of the game
+     */
     std::vector<char> shuffleLetters();
+
+    /*
+     * sends 1 letter and erases it from the pool
+     */
+    void sendLetterToPool(char letter);
 
     //getters & setters
     std::vector<char> getPl();
-    void setPl(std::vector<char> v);
     char getLet();
 };
 

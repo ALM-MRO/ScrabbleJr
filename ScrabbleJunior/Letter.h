@@ -10,15 +10,13 @@
 
 
 class Letter {
-    int line;
-    int column;
     char let;
     char word_direction;
     char state;
     bool intersection;
 public:
     Letter();
-    Letter(int line, int column, char let, char word_direction, char state, bool intersection);
+    Letter(char let, char word_direction, char state, bool intersection);
 
     // getters & setters
     char getLet();

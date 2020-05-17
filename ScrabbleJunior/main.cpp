@@ -1,40 +1,64 @@
 #include <iostream>
-#include <vector>
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
-#include "Clear.h"
+
 #include "Board.h"
 #include "Pool.h"
 #include "Player.h"
 #include "Game.h"
-#include "Letter.h"
+#include "common.h"
+
 using namespace std;
 
-int main(){
+int main() {
     srand(time(NULL));
+    setColor(BLACK, WHITE);
+    cout << WELCOME;
+    setColor(WHITE, BLACK);
+    char new_game;
+    bool flag_end_game = false;
+    while (true){
+        Player winner;
+        string board_name;
 
-    vector <vector <Letter>> brd_objects;
-    vector <Player> players_vec;
-    Player winner;
-    string name;
+        cout << CHOOSING_BOARD;
 
-    Board board = Board(name);                          // create object board; open board file; build board; insert words
-    Pool pool = Pool();                                 // create object pool
-    Game game = Game();
+        cin >> board_name;
+        Board board = Board(board_name);                            // create object board; open board file; build board; insert words
+        Pool pool = Pool();                                         // create object pool
+        pool.addLettersToPool(board.getBrd());                      // include board letters in pool vec (pl)
 
-    brd_objects = board.getBrd_objects();
 
-    pool.addLettersToPool(brd_objects);                 // include board letters in pool vec (pl)
+        while (pool.getPl().size() < 14) {
+            cout << "HERE\n";
+            cout << BOARD_ERROR;
+            cin >> board_name;
+            if (board_name == "quit") {
+                flag_end_game = true;
+                break;
+            }
+            board = Board(board_name);                                  // create object board; open board file; build board; insert words
+            pool = Pool();
+            pool.addLettersToPool(board.getBrd());                      // include board letters in pool vec (pl)
+        }
 
-    game = Game(players_vec, brd_objects, pool);        // update object game
+        if (flag_end_game)
+            break;
 
-    game.addPlayers();                                  // choose number of players, create Player objects
+        Game game = Game(pool, &board);                             // update object game
 
-    cout << "This is your board, the game will start in a few seconds...\n";
-   // board.printBoard();
-   // _sleep(30000);
-    vector <vector<char>> players_options = game.startPlaying();
+        if (game.addPlayers())                                      // choose number of players, create Player objects
+            break;
 
-    winner = game.play(board, players_options);                  // start playing the game
+        game.play();                                                // start playing the game
+
+        do {
+            cout << PLAY_AGAIN;
+            cin >> new_game;
+        } while(new_game != 'y' && new_game != 'Y' && new_game != 'n' && new_game != 'N');
+
+        if (new_game == 'n' || new_game == 'N')
+            break;
+    }
 }

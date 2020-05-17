@@ -5,311 +5,280 @@
 #include "Game.h"
 #include "Player.h"
 #include "Pool.h"
-#include "Clear.h"
+#include "common.h"
+#include "Board.h"
+
 #include <iostream>
 #include <algorithm>
+#include <concrt.h>
 
 using namespace std;
 
 Game::Game(){
 }
 
-Game::Game(vector<Player> players_vec, vector<vector<Letter>> brd_objects, Pool pool){
-    this -> players_vec = players_vec;
-    this -> brd_objects = brd_objects;
-    this -> pool = pool;
+Game::Game(Pool pool, Board* board) {
+    this -> pool = pool;      // object pool of class Pool
+    this -> board = board;    // pointer to object board (of class Board)
+    flag_end_of_game = false; // turns true if game has ended, breaking while loop
+    resizePlayers_options();
+}
 
-};
+void Game::resizePlayers_options() {
+    players_options.resize(board->getBrd().size());
+    for (int i = 0; i < board->getBrd().size(); i++)
+        players_options[i].resize(board -> getBrd()[0].size());
+}
 
-void Game::addPlayers() {
-    int num_players;
-    char answer;
-    string name, username, move, board_name;
-    vector <char> pl;
-    vector <vector <char>> brd;
-    pl = pool.getPl();
-    while (pl.size() < 14) {
-        cout << "This board is not suitable to be played in, choose another board.\n";
-        cin >> board_name;
-    }
-    if (pl.size() < 21) {
-        cout << "This board is only suitable for a 2-player game, do you wish to continue?(y/n)\n";
-        cin >> answer;
-        if (answer == 'y' || answer == 'Y')
-            num_players = 2;
-        //acrescentar reiniciar/escolher outro tabuleiro
-    } else if (pl.size() >= 21 && pl.size() < 28) {
-        do {
-            clear();
-            cout << "This board is not suitable for a 4-player game, do you wish to continue?(y/n)\n";
+bool Game::addPlayers() {
+    unsigned int num_players = 0;
+    int max_players = 4;
+    string answer =  " ";
+    string name, username, board_name;
+    int players_colors[4] = {LIGHTBLUE, LIGHTMAGENTA, YELLOW, GREEN};   // define players' colors
+
+    if (pool.getPl().size() < 28){                                      // if board has less than 28 letters
+        do {                                                            // can't be used by more than 3 players
+            clear();                                                    // asks user if they want to proceed or quit
+            cout << SUITABLE_BOARD;
+            if (pool.getPl().size() >= 21 && pool.getPl().size() < 28) cout << "2/3";
+            else cout << "2";
+            cout << PROCEED;
             cin >> answer;
-        } while (answer != 'y' && answer != 'Y' && answer != 'N' && answer != 'n');
-        //acrescentar reiniciar/escolher outro tabuleiro
-
-        do {
-            cout << "Number of players(2-3): ";
-            cin >> num_players;
-        } while (num_players < 2 || num_players > 3);
+            if (answer == "N" || answer == "n")                          // ends game
+                return true;
+            max_players = pool.getPl().size() >= 21 && pool.getPl().size() < 28 ? 3 : 2;
+            num_players = pool.getPl().size() >= 21 && pool.getPl().size() < 28 ? 4 : 2;
+        } while (answer != "y" && answer != "Y");
     }
 
-    do {
-        cout << "Number of players(2-4): ";
-        cin >> num_players;
-    } while (num_players < 2 || num_players > 4);
+    while (num_players < 2 || num_players > max_players) {              // inserting number of players
+        clear();
+        cout << "Number of players(2-" << max_players << "): ";
+        cin >> num_players; clearCin();
+    }
 
-
-    for (int i = 0; i < num_players; i++){
-        cout << "\nInsert Player " << i + 1 << " username:";
+    for (int i = 0; i < num_players; i++){                              // inserting players names
+        clear();
+        setColor(players_colors[i],BLACK);
+        cout << "\nInsert Player " << i + 1 << " name:";
         cin >> username;
-        players_vec.push_back(Player(username, 0, pool.shuffleLetters()));
+        players_vec.push_back(Player(username, 0, pool.shuffleLetters(), players_colors[i]));
+        setColor(WHITE, BLACK);
     }
     cout << "\n";
+    return false;
 }
 
-
-vector <vector<char>> Game:: startPlaying(){
-    vector<char> pl = pool.getPl();
-
-    vector<char> players_letters;
-    vector <vector<char>> players_options;
-    players_options.resize(brd_objects.size());
-
-    for (int i = 0; i < brd_objects.size(); i++)
-        players_options[i].resize(brd_objects[0].size());
-
-    return players_options;
-}
-
-Player Game::play(Board board, vector <vector<char>> players_options) {
-    int word_number = board.getWord_number();
-    int turn = 0;
-    int move_line, move_col;
-    int check_possibilities;
-    int right = 0;
-    int move_number = 0;
-    int win = 0;
-    int complete_words, pre_complete_words = 0;
-    int player_score, num_players;
-
-    char change_let1, change_let2;
-
-    string player_name;
-    string move;
-
-    vector<char> player_letters;
-    vector <Word> words_vec;
+void Game::play() {
+    int word_number = board -> getWord_number();
+    int turn = 0, move_number = 0, check_possibilities;
+    int num_changed_letters, num_letters_to_change;
+    pre_complete_words = 0;
+    char change_let;
+    vector <char> player_letters;
+    vector <Word > word_vec = board -> getWords_vec();
+    vector <char> aux_new_letters;
 
     while (true) {
-        clear();
-        check_possibilities = 0;
+        num_changed_letters = 0; // number of letters that have been
         complete_words = 0;
-
-        move_number = move_number % 2;
-        turn %= players_vec.size();
+        move_number = move_number % 2;  // checks if it is the first or the second move for each player
+        turn %= players_vec.size();     // chooses which is the current player to make a move
 
         player_letters = players_vec[turn].getLetters();
-        player_name = players_vec[turn].getName();
-        player_score = players_vec[turn].getScore();
-        num_players = players_vec.size();
+        check_possibilities = updatePlayers_options(player_letters); // if 0 it means the player has no move available
 
-        for (int i = 0; i < brd_objects.size(); i++)
-            for (int k = 0; k < brd_objects[0].size(); k++)
-                players_options[i][k] = 'I';
+        clear();
+        printLettersScores();                              // prints letters & scores
+        board->printBoard(players_options);   // prints the board
 
+        if (check_possibilities == 0) {
+            // no letters available to be played
+            if (move_number == 0 && pool.getPl().size() > 0) {
+                // first move for this player & letters in pool can be exchanged
+                printNoMoveAvailable(turn);
 
-        for (int i = 0; i < brd_objects.size(); i++)
-            for (int k = 0; k < brd_objects[0].size(); k++)
-                for (char player_letter : player_letters)                      // for (int l = 0; l < player_letters.size(); l++)
-                    if (brd_objects[i][k].getState() == 'P' && brd_objects[i][k].getLet() == player_letter) {
-                        players_options[i][k] = 'P';
-                        check_possibilities++;
-                    }
+                num_letters_to_change = pool.getPl().size() > 1 ? 2 : 1;
+                aux_new_letters.resize(num_letters_to_change);
 
-        board.printBoard(players_options);
+                for (int i = 0; pool.getPl().size() > 0 && i < num_letters_to_change; i++) // get new letter(s) from pool and
+                    aux_new_letters[i] = pool.getLet();                                    // delete them in common pool
 
-        printLettersScores(num_players, player_score);
-
-        if (check_possibilities == 0) {                                         // no letters available to be played
-            if (move_number == 0) {
-                cout << player_name << "\n,you have no letters available to be played.\n" <<
-                " Instead of playing choose 2 letters to exchange.";
-                do {
-                    cout << "\n1st letter:";
-                    cin >> change_let1;
-                    for (int l = 0; l < player_letters.size(); l++)
-                        if (change_let1 == player_letters[l]) {
-                            player_letters.erase(player_letters.begin() + l);
-                            right = 1;
+                do { // send unwanted letters to pool
+                    cout <<  " Letter " << num_changed_letters + 1 << ":";
+                    cin >> change_let; clearCin();
+                    for (int i = 0; i < player_letters.size(); i++)
+                        if (change_let == player_letters[i]) {
+                            pool.sendLetterToPool(player_letters[i]);
+                            player_letters.erase(player_letters.begin() + i);
+                            num_changed_letters++;
+                            break;
                         }
-                } while (right != 1);
-                clear();
-                board.printBoard(players_options);
-                printLettersScores(num_players, player_score);
-                do {
-                    cout << "\n2nd letter: ";
-                    cin >> change_let2;
-                    for (int l = 0; l < player_letters.size(); l++)
-                        if (change_let1 == player_letters[l]) {
-                            player_letters.erase(player_letters.begin() + l);
-                            right = 0;
-                        }
-                } while (right != 0);
-                player_letters.push_back(pool.getLet());                                          // Add new letter to player's pool and delete it in common pool
-                player_letters.push_back(pool.getLet());                                          // x2
-                players_vec[turn].setLetters(player_letters);                                     // update object player's letters
+                } while(num_changed_letters < num_letters_to_change);
+
+                for (int i = 0; pool.getPl().size() > 0 && i < num_letters_to_change; i++) // Add new letter(s) to player's pool and
+                    player_letters.push_back(aux_new_letters[i]);                          // delete it in common pool
+
+                players_vec[turn].setLetters(player_letters);                              // update object player's letters
+                clear();                                                                   // clear console
+                board->printBoard(players_options);                           // prints board
+                printLettersScores();                                                      // prints letters & scores
+                move_number++;  // increments move_number because 2 moves are made at the same time
 
             } else {
-                cout << player_name << " doesn't have any other move available.\n";
+                // second move for this player OR letters in pool can't be exchanged (0 letters in pool)
 
-                player_letters.push_back(pool.getLet());
-                players_vec[turn].setLetters(player_letters);
+                setColor(players_vec[turn].getColor(), BLACK);
+                cout << players_vec[turn].getName();
+                setColor(WHITE, BLACK);
+                cout << OUT_OF_MOVES;
+                Concurrency::wait(3000);
 
-                _sleep(5000);
+                if (!pool.getPl().empty()) player_letters.push_back(pool.getLet()); // if pool is not empty get letter from pool
+                players_vec[turn].setLetters(player_letters);                       // update player's letters in players_vec
             }
-
         } else {
-            do {
-                do {
-                    cout << "Make your move " << players_vec[turn].getName() << " (e.g. Be)";
-                    cin >> move;
-                    move_line = move[0] - 'A';
-                    move_col = move[1] - 'a';
-                } while (move_line > brd_objects.size() || move_col > brd_objects[0].size());
+            // there are letters available to be played by the current player
+            getMove(turn);
 
-            } while (players_options[move_line][move_col] != 'P' || move.length() != 2);
+            board -> fillLetter(move_line, move_col);                     // update letter state in Board class
 
-            brd_objects[move_line][move_col].setState('F');                                    // Change letter state in Letter class
-
-            board.setBrd_objects(brd_objects);                                           // Update letter state in Board class
-
-            players_options[move_line][move_col] = 'I';                                           // Set state of players_options already filled letter to impossible
-
-            for (int i = 0; i < player_letters.size(); i++)
-                if (brd_objects[move_line][move_col].getLet() == player_letters[i]) {
-                    player_letters.erase(player_letters.begin() + i);                             // Delete played letter from player's pool
+            for (int i = 0; i < player_letters.size(); i++)               // delete played letter from player's pool
+                if (board -> getBrd()[move_line][move_col].getLet() == player_letters[i]) {
+                    player_letters.erase(player_letters.begin() + i);
                     break;
                 }
+            if (move_number == 1)                                         // only happens after the second move of each player
+                for (int i = 0; pool.getPl().size() > 0 && i < 2; i++)
+                    player_letters.push_back(pool.getLet());              // add new letter to player's pool and delete it in common pool
+            players_vec[turn].setLetters(player_letters);                 // update object player's letters
 
-            if (move_number == 1) {                                                               // only happens after the second move of each player
-                player_letters.push_back(pool.getLet());                                          // Add new letter to player's pool and delete it in common pool
-                player_letters.push_back(pool.getLet());                                          // x2
-            }
-            players_vec[turn].setLetters(player_letters);                                         // update object player's letters
+            addPointsToPlayer(word_number, word_vec, turn, move_line, move_col); // updates player's score
 
-            win =  winner(word_number);
-
-            if (win != 0)
-                return players_vec[win-1];
-
-            checkNextLetter(move_line, move_col);
-            board.setBrd_objects(brd_objects);
-
-            words_vec = board.getWords_vec();
-
-            for(int i = 0; i < word_number; i++) {
-                words_vec[i].changeComplete();
-                if (words_vec[i].getComplete())
-                    complete_words++;
-            }
-
-            player_score += complete_words - pre_complete_words;                                  // update player's score
-            players_vec[turn].setScore(player_score);                                             // update player's score in Player class
-            pre_complete_words = complete_words;                                                  // update number of completed words
-
+            if (flag_end_of_game)  //ends game when all words are complete
+                break;
         }
-
-        move_number++;
-        if (move_number == 2)
+        move_number++;             // increments move number by 1
+        if (move_number == 2)      // if player has completed to moves in a row turn is passed to the next player
             turn++;
     }
 }
-void Game::printLettersScores(int num_players, int player_score) {
-    for (int i = 0; i < num_players; i++) {
-        cout << "\n" << players_vec[i].getName() << "'s letters: ";
-        for (int k = 0; k < players_vec[i].getLetters().size(); k++)
-            cout << players_vec[i].getLetters()[k] << " ";
-        cout << "\t| score = " << player_score;
+
+void Game::printNoMoveAvailable(int turn){
+    setColor(players_vec[turn].getColor(), BLACK);
+    cout << "\n" << players_vec[turn].getName();
+    setColor(WHITE, BLACK);
+    cout << NO_LETTERS_AVAILABLE;   // how many letters can be exchanged
+    cout << (pool.getPl().size() > 1 ? " 2 letters " : " 1 letter ") << "to exchange.";
+}
+
+void Game::getMove(int turn){
+    string move;
+    move_line = 0;
+    move_col = 0;
+    do { // move input has to: be a string with length = 2; refer to an existing
+        do { // index of line and column which is set as possible to be played in
+            setColor(players_vec[turn].getColor(), BLACK);
+            cout << players_vec[turn].getName();
+            setColor(WHITE, BLACK);
+            cout << MAKE_MOVE;
+            cin >> move;
+            move_line = move[0] - 'A';
+            move_col = move[1] - 'a';
+        } while (move_line > board -> getBrd().size() || move_col > board -> getBrd()[0].size());
+    } while (players_options[move_line][move_col] != 'P' || move.length() != 2);
+}
+
+int Game::updatePlayers_options(vector <char> player_letters){
+    int check_possibilities = 0;
+
+    for (int i = 0; i < board -> getBrd().size(); i++) {         // resets players_options so it can be used by
+        for (int k = 0; k < board->getBrd()[0].size(); k++)      // multiple players
+            players_options[i][k] = 'I';
     }
-    cout << "\n\n";
-}
 
-void Game::checkNextLetter(int line, int col){
-
-    if (brd_objects[line][col].getIntersection()) {               //when the chosen letter belonged to 2 words
-        if (line > 0) {
-            if (brd_objects[line - 1][col].getState() == 'E' || brd_objects[line - 1][col].getState() == 'F')
-                checkVerticalWord(line, col);
-        } else
-            checkVerticalWord(line, col);
-
-        if (col > 0) {
-           if (brd_objects[line][col - 1].getState() == 'E' || brd_objects[line][col - 1].getState() == 'F')
-               checkHorizontalWord(line, col);
-        } else
-            checkHorizontalWord(line, col);
-
-    } else if (brd_objects[line][col].getWord_direction() == 'V') //when the chosen letter belonged to a vertical word
-        checkVerticalWord(line, col);
-
-    else if (brd_objects[line][col].getWord_direction() == 'H')   //when the chosen letter belonged to a horizontal word
-        checkHorizontalWord(line, col);
-
-}
-
-void Game::checkVerticalWord(int line, int col) {
-    for (int i = line; i < brd_objects.size(); i++) {
-        if (brd_objects[i][col].getState() == 'I') {
-            for(int k = col; k > 0; k--) {
-                if (brd_objects[i][k].getState() == 'E') {
-                    brd_objects[i][col].setState('P');
-                    break;
-                } else if (brd_objects[i][k].getState() == 'I' || brd_objects[i][k].getState() == 'P') {
-                    break;
+    for (int i = 0; i < board -> getBrd().size(); i++) {         // sets players options to 'P' (possible) if the
+        for (int k = 0; k < board->getBrd()[0].size(); k++)      // player has letters that are set has available
+            for (char player_letter : player_letters)            // to be played in the board
+                if (board->getBrd()[i][k].getState() == 'P' && board->getBrd()[i][k].getLet() == player_letter) {
+                    players_options[i][k] = 'P';
+                    check_possibilities++;
                 }
-            }
-        } else if (brd_objects[i][col].getState() == 'E' || brd_objects[i][col].getState() == 'P')
-            break;
+    }
+    return check_possibilities;
+}
+
+void Game::printLettersScores() {
+    for (Player p : players_vec) {
+        setColor(p.getColor(), BLACK);
+        cout << "\n Score: " << p.getScore() << " | " << p.getName() << "'s letters: ";
+        for (int k = 0; k < p.getLetters().size(); k++)
+            cout << p.getLetters()[k] << " ";
+    }
+    setColor(WHITE, BLACK);
+}
+
+void Game::addPointsToPlayer(int word_number, vector <Word> word_vec, int turn, int line, int col){
+    complete_words = 0;
+    for (int i = 0; i < word_number; i++) {                                      // get number of completed words
+        word_vec[i].updateComplete();
+        if (word_vec[i].getComplete())
+            complete_words++;
+    }
+
+    int score_diff = complete_words - pre_complete_words;                        // check if new words were completed
+    players_vec[turn].setScore(players_vec[turn].getScore() + score_diff);    // update player's score in Player
+    pre_complete_words = complete_words;                                         // update number of completed words
+
+    if (complete_words == word_number) {
+        players_options[line][col] = 'I';
+        clear();
+        board->printBoard(players_options);
+        endGame();
+        flag_end_of_game = true;
     }
 }
 
-void Game::checkHorizontalWord(int line, int col) {
-    for (int k = col; k < brd_objects[0].size(); k++) {
-        if (brd_objects[line][k].getState() == 'I') {
-            for(int i = line; i > 0; i--) {
-                if (brd_objects[i][k].getState() == 'E') {
-                    brd_objects[line][k].setState('P');
-                    break;
-                } else if (brd_objects[i][k].getState() == 'I' || brd_objects[i][k].getState() == 'P') {
-                    break;
-                }
+void Game::endGame() {
+    int draw = 1;
+    int i = 1;
+    Player temp;
+    bool swapped = true;
+
+    while(swapped){
+        swapped = false;
+        for (size_t j = 0; j < players_vec.size() - 1; j++)
+            if (players_vec[j].getScore() < players_vec[j+1].getScore()){
+                temp = players_vec[j];
+                players_vec[j] = players_vec[j + 1];
+                players_vec[j + 1] = temp;
+                swapped = true;
             }
-        } else if (brd_objects[line][k].getState() == 'E' || brd_objects[line][k].getState() == 'P')
-            break;
     }
-}
 
-int Game::winner(int word_number){
-    vector <int> scores;
-    if (players_vec.size() == 2)
-        scores = {players_vec[0].getScore(), players_vec[1].getScore()};
-    else if (players_vec.size() == 3)
-        scores.push_back(players_vec[2].getScore());
-    else
-        scores.push_back(players_vec[3].getScore());
+    while(i < players_vec.size() && players_vec[i++].getScore() == players_vec[0].getScore())
+        draw++;
 
-    int previous = 0, pre_previous = 0, best = 0, second_best = 0;
+    clear();
 
-    for (int i = 0; i < players_vec.size(); i++)
-        if (scores[i] > previous) {
-            previous = scores[i];
-            best = i;
-        } else if (scores[i] > pre_previous){
-            pre_previous = scores[i];
-            second_best = i;
+    for (size_t j = 0; j < players_vec.size(); j++)
+        cout << "\n" << players_vec[j].getName() << "'s score: " << players_vec[j].getScore();
+
+    if (draw > 1) {
+        cout << "\n\nThe winners are:\n";
+        for (int k = 0; k < draw - 1; k++) {
+            setColor(players_vec[k].getColor(), BLACK);
+            cout << "-> "<<players_vec[k].getName() << "\n";
         }
-
-    if (word_number + second_best < 2*best )
-        return best + 1;
-
-    return 0;
+        setColor(WHITE, BLACK);
+    } else {
+        cout << "\nThe winner is ";
+        setColor(players_vec[0].getColor(), BLACK);
+        cout << players_vec[0].getName();
+        setColor(WHITE, BLACK);
+        cout << "!!";
+    }
+    cout <<"\n";
+    Concurrency::wait(3000);
 }

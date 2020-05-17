@@ -16,31 +16,62 @@
 
 
 class Board {
-    std::string name;
-    int lines;
-    int columns;
-    int players;
-    int word_number;
-    vector <vector <Letter>> brd_objects;
-    vector <Word> words_vec;
+    std::string name;   // board file name which is given by the user
+    int lines;          // lines from board file
+    int columns;        // columns from board file
+    int word_number;    // number of words in the board / maximum of points a players can get
+    std::vector <std::vector <Letter>> brd;  // board vector of Letter objects
+    std::vector <Word> words_vec;            // vector of all words in the board
 public:
+    // constructors
+    Board();
     Board(std::string name);
-    Board(std::string name, int lines, int columns, int players,
-            vector<vector<Letter>> brd_objects, int word_number, vector<Word> words_vec);
-    void buildBoard();
-    void printBoard(vector <vector<char>> players_options);
-    void readBoardFile();
-    void insertWord(vector <char> vec, char line, char column, char direction);
 
+    // functions
+
+    /*
+     * resizes board vector according to file information
+     * sets every position to empty and intersection to false
+     */
+    void buildBoard();
+
+    /*
+     * prints the board
+     * prints informative label about the colors of the letters
+     */
+    void printBoard(std::vector <std::vector<char>> players_options);
+
+    /*
+     * reads board file
+     * calls buildBoard() after reading the first line
+     * calls insertWord() after reading every other line
+     * prints a warning if the file fails to open
+     */
+    void readBoardFile();
+
+    /*
+    *  creates Word objects and inserts them in words_vec
+    *  inserts Letter objects in board vector from Board class
+    *  each Word object takes as arguments pointers to its Letter objects
+    */
+    void insertWord(std::vector <char> vec, char line, char column, char direction);
+
+    /*
+     *  sets chosen letter as 'F' (filled)
+     *  calls checkUpLeft()
+     */
+    void fillLetter(int move_line, int move_col);
+
+    /*
+     * Checks all letters of a word with smaller index to the one in question
+     * If it gets they are filled, the letter state is set as P
+     */
+    void checkUpLeft(int line, int col);
 
     //getters & setters
-
-
     int getWord_number();
-    vector<vector<Letter>> getBrd_objects();
-    void setBrd_objects(vector <vector <Letter>> new_brd);
-    vector <Word> getWords_vec();
-
+    std::vector<std::vector<Letter>> getBrd();
+    std::vector <Word> getWords_vec();
 };
 
 

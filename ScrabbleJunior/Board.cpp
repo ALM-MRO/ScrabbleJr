@@ -4,10 +4,9 @@
 
 #include "Board.h"
 #include "Word.h"
-#include "Colors.h"
-#include "Player.h"
-#include "Pool.h"
 #include "Letter.h"
+#include "common.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -16,66 +15,61 @@
 
 using namespace std;
 
+
+Board::Board() {
+}
+
 Board::Board(string name){
     this -> name = name;
     readBoardFile();
 }
 
-Board::Board(string name, int lines, int columns, int players,vector<vector<Letter>> brd_objects, int word_number, vector<Word> words_vec){
-    this -> name = name;
-    this -> lines = lines;
-    this -> columns = columns;
-    this -> players = players;
-    this -> brd_objects = brd_objects;
-    this -> word_number = word_number;
-    this -> words_vec = words_vec;
-}
-
 void Board::buildBoard(){
-    brd_objects.resize(lines);
+    brd.resize(lines);
     for (int i = 0; i < lines; i++) {
-        brd_objects[i].resize(columns);
+        brd[i].resize(columns);
     }
     for (int i = 0; i < lines; i++)
         for (int k = 0; k < columns; k++) {
-            brd_objects[i][k] = Letter(i, k, ' ', ' ', 'E', false);
+            brd[i][k] = Letter(' ', ' ', 'E', false);
         }
 }
 
 void Board::readBoardFile(){
     word_number = 0;
-    string srg;
-    int count = 0;
-    ifstream filestream("Board1.txt");
+    int word_length, file_line = 0;
+    char line, column, direction;
+    string str, aux;
     vector<char> word_vec;
-    char line, column, direction, aux;
-    int len;
+    ifstream filestream(name + ".txt");
     stringstream ss;
     if (filestream.is_open()) {
-        while (getline(filestream, srg)){
-            if (count == 0) {
-                ss = stringstream(srg);
+        while (getline(filestream, str)){
+            if (file_line == 0) {  // reading first file line
+                ss = stringstream(str);
                 ss >> lines >> aux >> columns;
                 buildBoard();
             } else {
-                line = srg[0];
-                column = srg[1];
-                direction = srg[3];
-                len = srg.length();
-                word_vec.resize(len - 5);
+                line = str[0];          // word's first letter line
+                column = str[1];        // word's first letter column
+                direction = str[3];     // word's direction
 
-                for (int i = 5; i < len; i++)
-                    word_vec[i - 5] = srg[i];
+                word_length = str.length();
+                word_vec.resize(word_length - 5);
+
+                for (int i = 5; i < word_length; i++)
+                    word_vec[i - 5] = str[i];
 
                 insertWord(word_vec, line, column, direction);
             }
-            count++;
+            file_line++;
         }
-
-    } else cout << "Failed to open the file";
-
-
-
+    } else {    // if opening board fails
+        clear();
+        setColor(RED, BLACK);
+        cout << OPEN_FAILED;
+        setColor(WHITE, BLACK);
+    }
 }
 
 void Board::insertWord(vector <char> word_vec, char line, char column, char direction){
@@ -86,34 +80,30 @@ void Board::insertWord(vector <char> word_vec, char line, char column, char dire
     c = column - 'a';
 
     for (int i = 0; i < word_vec.size() ; i++) {
+        intersection = brd[l][c].getState() != 'E'; // if letter's "let" is not 'E'(empty) then it means it is part of two different words
 
-        intersection = brd_objects[l][c].getLet() != ' ';
+        if (brd[l][c].getState() == 'P')  // if letter's state is 'P' then it means it is part of two different words
+            brd[l][c].setIntersection(true);    // so intersection is set as true
 
-        if (brd_objects[l][c].getState() == 'P')
-            brd_objects[l][c].setIntersection(true);
+        if (i == 0) { // first letter of each word is always set as possible to be played (state 'P')
+            brd[l][c] = Letter(word_vec[i], direction, 'P', intersection);
+        } else if (brd[l][c].getState() != 'P') // if new letter is not the first of other already inserted word, state 'I' (impossible to be played)
+            brd[l][c] = Letter(word_vec[i], direction, 'I', intersection);
 
-        if (i == 0) {
-            brd_objects[l][c] = Letter(l, c, word_vec[i], direction, 'P', intersection);
-        } else if (brd_objects[l][c].getState() != 'P'){
-            brd_objects[l][c] = Letter(l, c, word_vec[i], direction, 'I', intersection);
-        }
-
-        letters_vec.push_back(&brd_objects[l][c]);
+        letters_vec.push_back(&brd[l][c]); // add letters pointer to letters_vec
 
         if (direction == 'H') c++;
         else l++;
-
     }
 
-    words_vec.push_back(Word(letters_vec, line, column, direction));
-
-    word_number++;
+    words_vec.push_back(Word(letters_vec));  // create new object of class Word and add it to words_vec
+    word_number++;                           // number of words(maximum of points) is incremented
 
 }
 
 void Board::printBoard(vector <vector<char>> players_options){
     setColor(YELLOW, BLACK);
-    cout << "  ";
+    cout << "\n  ";
     for (int i = 0; i < columns ; i++){
         cout << "  " << char('a' + i);
     }
@@ -121,19 +111,14 @@ void Board::printBoard(vector <vector<char>> players_options){
     for (int i = 0; i < lines ; i++) {
         setColor(YELLOW, BLACK);
         cout << "\n " << char(65 + i) << " ";
-
         for (int k = 0; k < columns; k++) {
-            /*
-            if (brd_objects[i][k].getState() == 'P') setColor(GREEN, WHITE);
-            */
             if (players_options[i][k] == 'P') {
                 setColor(GREEN, WHITE);
-            }else if (brd_objects[i][k].getState() == 'F') {
+            }else if (brd[i][k].getState() == 'F') {
                 setColor(RED, WHITE);
             } else
                 setColor(BLACK, WHITE);
-
-            cout << " " << brd_objects[i][k].getLet() << " ";
+            cout << " " << brd[i][k].getLet() << " ";
         }
     }
     setColor(GREEN, BLACK);
@@ -143,24 +128,55 @@ void Board::printBoard(vector <vector<char>> players_options){
     setColor(WHITE, BLACK);
 }
 
+void Board::fillLetter(int line, int col) {
+    brd[line][col].setState('F'); // F = filled
 
+    // finds next letter to be available in vertical words
+    if (brd[line][col].getWord_direction() == 'V' || brd[line][col].getIntersection()) // V = vertical
+        for (int i = line + 1; i < brd.size(); i++)
+            if (brd[i][col].getState() == 'I') { // I = has letter but it is currrently impossible to be played
+                checkUpLeft(i, col);
+                break;
+            }
+    // finds next letter to be available in horizontal words
+    if (brd[line][col].getWord_direction() == 'H' || brd[line][col].getIntersection()) // H = horizontal
+        for (int i = col + 1; i < brd[0].size(); i++)
+            if (brd[line][i].getState() == 'I') { // I = has letter but it is currrently impossible to be played
+                checkUpLeft(line, i);
+                break;
+            }
+}
 
+void Board::checkUpLeft(int line, int col) {
+    bool setPossibility = true, checkUp = true, checkLeft = true;
+    int i = 1;
 
+    while (checkUp || checkLeft) {
+        // checks the beginning of a vertical word (up) to see if the letter state can become possible(P)
+        if (checkUp && (line - i < 0 || brd[line - i][col].getState() == 'E')) // E = empty
+            checkUp = false;
+        else if (checkUp && brd[line - i][col].getState() != 'F') // F = filled
+            setPossibility = false;
+        // checks the beginning of a horizontal word (left) to see if the letter state can become possible(P)
+        if (checkLeft && (col - i < 0 || brd[line][col - i].getState() == 'E')) // E = empty
+            checkLeft = false;
+        else if (checkLeft && brd[line][col - i].getState() != 'F') // F = filled
+            setPossibility = false;
+        i++;
+    }
+    if (setPossibility) brd[line][col].setState('P'); // if possible, letter state is set as P
+}
 
 
 //setters & getters
+
 
 int Board::getWord_number(){
     return word_number;
 }
 
-vector<vector<Letter>> Board::getBrd_objects(){
-    return brd_objects;
-}
-
-
-void Board::setBrd_objects(vector <vector <Letter>> new_brd){
-    brd_objects = new_brd;
+vector<vector<Letter>> Board::getBrd(){
+    return brd;
 }
 
 vector <Word> Board::getWords_vec(){

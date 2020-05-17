@@ -12,9 +12,10 @@ class Player {
     std::string name;
     int score;
     std::vector <char> letters;
+    int color;
 public:
     Player();
-    Player(std::string name, int score, std::vector<char> letters);
+    Player(std::string name, int score, std::vector<char> letters, int color);
 
     //getters & setters
     int getScore();
@@ -22,6 +23,7 @@ public:
     std::string getName();
     std::vector <char> getLetters();
     void setLetters(std::vector <char> let);
+    int getColor();
 };
 
 

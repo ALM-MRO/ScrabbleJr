@@ -2,26 +2,25 @@
 // Created by marga on 06/05/2020.
 //
 #include "Word.h"
+
 using namespace std;
 
-Word:: Word(vector<Letter *> letters_vec, char line, char column, char direction){
-    this -> line = line;
-    this -> column = column;
+Word::Word(vector<Letter *> letters_vec){
     this -> letters_vec = letters_vec;
-    this -> direction = direction;
     this -> complete;
 }
 
-void Word::changeComplete(){
-    for (auto & let : letters_vec) {
+void Word::updateComplete(){
+    complete = true;
+    for (Letter *let : letters_vec)
         if (let -> getState() != 'F') {
             complete = false;
             break;
         }
-        complete = true;
-    }
-
 }
+
+
+//getters & setters
 
 bool Word::getComplete(){
     return complete;

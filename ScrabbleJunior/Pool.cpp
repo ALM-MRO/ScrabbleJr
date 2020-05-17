@@ -4,15 +4,16 @@
 
 #include "Pool.h"
 
+using namespace std;
 
 Pool::Pool(){
 };
 
-void Pool::addLettersToPool(vector<vector<Letter>> brd_objects){
-    for (int i = 0; i < brd_objects.size(); i++)
-        for (int k = 0; k < brd_objects[0].size(); k++)
-            if (brd_objects[i][k].getLet() != ' ')
-                pl.push_back(brd_objects[i][k].getLet());
+void Pool::addLettersToPool(std::vector<std::vector<Letter>> brd){
+    for (int i = 0; i < brd.size(); i++)
+        for (int k = 0; k < brd[0].size(); k++)
+            if (brd[i][k].getLet() != ' ')
+                pl.push_back(brd[i][k].getLet());
 }
 
 vector<char> Pool::shuffleLetters(){
@@ -26,12 +27,16 @@ vector<char> Pool::shuffleLetters(){
     return letters;
 }
 
-vector<char> Pool::getPl(){
-    return pl;
+void Pool::sendLetterToPool(char letter){
+    pl.push_back(letter);
 }
 
-void Pool::setPl(vector<char> v){
-    pl = v;
+
+
+//setters & getters
+
+vector<char> Pool::getPl(){
+    return pl;
 }
 
 char Pool::getLet(){
@@ -42,3 +47,4 @@ char Pool::getLet(){
     pl.erase(pl.begin() + rand_index);
     return send;
 }
+

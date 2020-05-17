@@ -9,19 +9,16 @@
 #include <vector>
 #include <string>
 
-//#include "Letter.h"
-
+#include "Letter.h"
 
 class Letter;
 
 class Word{
     std::vector <Letter*> letters_vec;
-    char line, column;
-    char direction;
     bool complete;
 public:
-    Word(std::vector<Letter*> letters_vec, char line, char column, char direction);
-    void changeComplete();
+    Word(std::vector<Letter*> letters_vec);
+    void updateComplete();
 
     //setters & getters
     bool getComplete();
