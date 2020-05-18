@@ -14,6 +14,7 @@ class Letter {
     char word_direction;
     char state;
     bool intersection;
+
 public:
     Letter();
     Letter(char let, char word_direction, char state, bool intersection);
@@ -24,8 +25,6 @@ public:
     char getState();
     void setState(char s);
     bool getIntersection();
-    void setIntersection(bool i);
-
 
 };
 

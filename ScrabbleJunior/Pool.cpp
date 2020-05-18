@@ -9,7 +9,7 @@ using namespace std;
 Pool::Pool(){
 };
 
-void Pool::addLettersToPool(std::vector<std::vector<Letter>> brd){
+void Pool::addLettersToPool(vector<vector<Letter>> brd){
     for (int i = 0; i < brd.size(); i++)
         for (int k = 0; k < brd[0].size(); k++)
             if (brd[i][k].getLet() != ' ')
@@ -30,8 +30,6 @@ vector<char> Pool::shuffleLetters(){
 void Pool::sendLetterToPool(char letter){
     pl.push_back(letter);
 }
-
-
 
 //setters & getters
 

@@ -17,8 +17,6 @@ Player::Player(string name, int score, vector<char> letters, int color){
     this -> color = color;
 };
 
-
-
 // setters & getters
 
 int Player::getScore() {

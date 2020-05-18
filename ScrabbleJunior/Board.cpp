@@ -64,7 +64,7 @@ void Board::readBoardFile(){
             }
             file_line++;
         }
-    } else {    // if opening board fails
+    } else { // if opening board fails
         clear();
         setColor(RED, BLACK);
         cout << OPEN_FAILED;
@@ -80,14 +80,11 @@ void Board::insertWord(vector <char> word_vec, char line, char column, char dire
     c = column - 'a';
 
     for (int i = 0; i < word_vec.size() ; i++) {
-        intersection = brd[l][c].getState() != 'E'; // if letter's "let" is not 'E'(empty) then it means it is part of two different words
+        intersection = brd[l][c].getState() != 'E'; // state 'E' -> letter part of two different words
 
-        if (brd[l][c].getState() == 'P')  // if letter's state is 'P' then it means it is part of two different words
-            brd[l][c].setIntersection(true);    // so intersection is set as true
-
-        if (i == 0) { // first letter of each word is always set as possible to be played (state 'P')
+        if (i == 0) { // first letter of each word -> state 'P'
             brd[l][c] = Letter(word_vec[i], direction, 'P', intersection);
-        } else if (brd[l][c].getState() != 'P') // if new letter is not the first of other already inserted word, state 'I' (impossible to be played)
+        } else if (brd[l][c].getState() != 'P') // new letter is not the first of other inserted word -> state 'I'
             brd[l][c] = Letter(word_vec[i], direction, 'I', intersection);
 
         letters_vec.push_back(&brd[l][c]); // add letters pointer to letters_vec
@@ -169,7 +166,6 @@ void Board::checkUpLeft(int line, int col) {
 
 
 //setters & getters
-
 
 int Board::getWord_number(){
     return word_number;

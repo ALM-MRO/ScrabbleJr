@@ -19,27 +19,17 @@ class Board {
     std::string name;   // board file name which is given by the user
     int lines;          // lines from board file
     int columns;        // columns from board file
-    int word_number;    // number of words in the board / maximum of points a players can get
+    int word_number;    // number of words in the board / maximum of points players can get
     std::vector <std::vector <Letter>> brd;  // board vector of Letter objects
     std::vector <Word> words_vec;            // vector of all words in the board
-public:
-    // constructors
-    Board();
-    Board(std::string name);
 
-    // functions
+    //function
 
     /*
      * resizes board vector according to file information
      * sets every position to empty and intersection to false
      */
     void buildBoard();
-
-    /*
-     * prints the board
-     * prints informative label about the colors of the letters
-     */
-    void printBoard(std::vector <std::vector<char>> players_options);
 
     /*
      * reads board file
@@ -55,6 +45,18 @@ public:
     *  each Word object takes as arguments pointers to its Letter objects
     */
     void insertWord(std::vector <char> vec, char line, char column, char direction);
+public:
+    // constructors
+    Board();
+    Board(std::string name);
+
+    // functions
+
+    /*
+     * prints the board
+     * prints informative label about the colors of the letters
+     */
+    void printBoard(std::vector <std::vector<char>> players_options);
 
     /*
      *  sets chosen letter as 'F' (filled)
@@ -69,6 +71,7 @@ public:
     void checkUpLeft(int line, int col);
 
     //getters & setters
+
     int getWord_number();
     std::vector<std::vector<Letter>> getBrd();
     std::vector <Word> getWords_vec();

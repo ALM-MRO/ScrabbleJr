@@ -22,9 +22,9 @@ public:
     // functions
 
     /*
- * called when after board file
- * called when player wnats to exchanges letters with the pool
- */
+     * called when after board file
+     * called when player wnats to exchanges letters with the pool
+     */
     void addLettersToPool(std::vector<std::vector<Letter>> brd);
 
     /*
@@ -37,7 +37,9 @@ public:
      */
     void sendLetterToPool(char letter);
 
+
     //getters & setters
+
     std::vector<char> getPl();
     char getLet();
 };

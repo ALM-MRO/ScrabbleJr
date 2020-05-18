@@ -5,7 +5,7 @@
 
 using namespace std;
 
-Word::Word(vector<Letter *> letters_vec){
+Word::Word(vector<Letter*> letters_vec){
     this -> letters_vec = letters_vec;
     this -> complete;
 }

@@ -5,14 +5,13 @@
 #include "Letter.h"
 
 Letter::Letter(){
-
 }
+
 Letter::Letter(char let, char word_direction, char state, bool intersection){
     this -> let = let;
     this -> word_direction = word_direction;
     this -> intersection = intersection;
-    this -> state = state;                  // P = possible & unfilled; I = impossible; E = empty; F = filled/permanent
-
+    this -> state = state; // P = possible/unfilled || I = impossible || E = empty || F = filled/permanent
 }
 
 char Letter::getLet() {
@@ -33,7 +32,4 @@ void Letter::setState(char s){
 
 bool Letter::getIntersection() {
     return intersection;
-}
-void Letter::setIntersection(bool i) {
-    intersection = i;
 }
