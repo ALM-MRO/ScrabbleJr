@@ -2,8 +2,8 @@
 // Created by marga on 07/05/2020.
 //
 
-#ifndef UNTITLED13_POOL_H
-#define UNTITLED13_POOL_H
+#ifndef SCRABBLE_JR_POOL_H
+#define SCRABBLE_JR_POOL_H
 
 #include <iostream>
 #include <vector>
@@ -39,10 +39,9 @@ public:
 
 
     //getters & setters
-
     std::vector<char> getPl();
     char getLet();
 };
 
 
-#endif //UNTITLED13_POOL_H
+#endif //SCRABBLE_JR_POOL_H

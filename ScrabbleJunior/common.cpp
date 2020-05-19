@@ -14,8 +14,8 @@ void setColor(int textColor, int bgColor) {
 }
 
 void clear(){
-     //cout << flush;
-     //system("CLS");
+    cout << flush;
+    system("CLS");
 }
 
 void clearCin() {

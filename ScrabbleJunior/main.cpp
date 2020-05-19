@@ -27,10 +27,10 @@ int main() {
         Pool pool = Pool(); // create object pool
         pool.addLettersToPool(board.getBrd()); // include board letters in pool vec (pl)
 
-        while (pool.getPl().size() < 14) { // number of letters must be at least 14
+        while (pool.getPl().size() < 14){ // number of letters must be at least 14
             cout << BOARD_ERROR;
             cin >> board_name;
-            if (board_name == "quit") {
+            if (board_name == "/quit") {
                 flag_end_game = true;
                 break;
             }
@@ -39,17 +39,13 @@ int main() {
             pool.addLettersToPool(board.getBrd()); // include board letters in pool vec (pl)
         }
         if (flag_end_game) break;
-
         Game game = Game(pool, &board); // update object game
-
         if (game.addPlayers()) break;  // choose number of players, create Player objects
-
         game.play(); // start playing the game
         do {
             cout << PLAY_AGAIN;
             cin >> new_game;
         } while (new_game != 'y' && new_game != 'Y' && new_game != 'n' && new_game != 'N');
-
         if (new_game == 'n' || new_game == 'N') break;
     }
 }

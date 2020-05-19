@@ -35,7 +35,7 @@ bool Game::addPlayers() {
     int max_players = 4;
     string answer =  " ";
     string name, username, board_name;
-    int players_colors[4] = {LIGHTBLUE, LIGHTMAGENTA, YELLOW, GREEN};   // define players' colors
+    int players_colors[4] = {LIGHTCYAN, MAGENTA, YELLOW, GREEN};   // define players' colors
 
     if (pool.getPl().size() < 28){                                      // if board has less than 28 letters
         do {                                                            // can't be used by more than 3 players
@@ -100,6 +100,7 @@ void Game::play() {
                 printNoMove_NoChangeLetters(turn);
                 if (!pool.getPl().empty()) player_letters.push_back(pool.getLet()); // pool not empty -> get letter from pool
                 players_vec[turn].setLetters(player_letters); // update player's letters in players_vec
+                if (move_number == 0) move_number++;
             }
         } else {
             // 3. there are letters available to play
@@ -207,7 +208,7 @@ vector <char> Game::updatePlayers_letters(std::vector <char> player_letters, int
 
 void Game::printPlayerName(int turn){
     setColor(players_vec[turn].getColor(), BLACK);
-    cout << players_vec[turn].getName();
+    cout << " " << players_vec[turn].getName();
     setColor(WHITE, BLACK);
 }
 
@@ -263,8 +264,11 @@ void Game::endGame() {
 
     clear();
 
-    for (Player p : players_vec)
-        cout << "\n" << p.getName() << "'s score: " << p.getScore();
+    for (int i = 0; i < players_vec.size(); i++) {
+        cout << "\n";
+        printPlayerName(i);
+        cout << "'s score: " << players_vec[i].getScore();
+    }
 
     if (draw > 1) {
         cout << MULTIPLE_WINNERS;
@@ -275,9 +279,7 @@ void Game::endGame() {
         setColor(WHITE, BLACK);
     } else {
         cout << ONE_WINNER;
-        setColor(players_vec[0].getColor(), BLACK);
-        cout << players_vec[0].getName();
-        setColor(WHITE, BLACK);
+        printPlayerName(0);
         cout << "!!";
     }
     cout <<"\n";

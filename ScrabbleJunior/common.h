@@ -2,25 +2,16 @@
 // Created by marga on 15/05/2020.
 //
 
-#ifndef UNTITLED13_COMMON_H
-#define UNTITLED13_COMMON_H
+#ifndef SCRABBLE_JR_COMMON_H
+#define SCRABBLE_JR_COMMON_H
 
 #include <string>
 
 #define BLACK 0
-#define BLUE 1
 #define GREEN 2
-#define CYAN 3
 #define RED 4
 #define MAGENTA 5
-#define BROWN 6
-#define LIGHTGRAY 7
-#define DARKGRAY 8
-#define LIGHTBLUE 9
-#define LIGHTGREEN 10
 #define LIGHTCYAN 11
-#define LIGHTRED 12
-#define LIGHTMAGENTA 13
 #define YELLOW 14
 #define WHITE 15
 
@@ -30,7 +21,7 @@
 #define PLAY_AGAIN "Would you like to play again?(y/n)\n"
 
 // Board
-#define BOARD_ERROR "Enter another board with at least 14 letters.\n If you'd like to quit playing enter 'quit' instead of the new board name.\n"
+#define BOARD_ERROR "Enter another board with at least 14 letters.\n If you'd like to quit playing enter '/quit' instead of the new board name.\n"
 #define SUITABLE_BOARD "This board is only suitable for a "
 #define PROCEED "-player game, do you wish to continue with this board?(y/n)\n"
 #define OPEN_FAILED "Failed to open the board file.\n"
@@ -50,4 +41,4 @@ void clear();
 void clearCin();
 
 
-#endif //UNTITLED13_COMMON_H
+#endif //SCRABBLE_JR_COMMON_H

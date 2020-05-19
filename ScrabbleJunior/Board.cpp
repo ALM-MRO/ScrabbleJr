@@ -100,10 +100,9 @@ void Board::insertWord(vector <char> word_vec, char line, char column, char dire
 
 void Board::printBoard(vector <vector<char>> players_options){
     setColor(YELLOW, BLACK);
-    cout << "\n  ";
-    for (int i = 0; i < columns ; i++){
+    cout << "\n\n  ";
+    for (int i = 0; i < columns ; i++)
         cout << "  " << char('a' + i);
-    }
     cout << "  ";
     for (int i = 0; i < lines ; i++) {
         setColor(YELLOW, BLACK);
@@ -119,9 +118,9 @@ void Board::printBoard(vector <vector<char>> players_options){
         }
     }
     setColor(GREEN, BLACK);
-    cout << "\n   Temporary & Available: Green";
+    cout << "\n   Available: Green";
     setColor(RED, BLACK);
-    cout << "\n   Permanent: Red\n";
+    cout << "\n   Permanent: Red\n\n";
     setColor(WHITE, BLACK);
 }
 

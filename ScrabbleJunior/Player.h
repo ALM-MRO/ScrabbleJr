@@ -2,8 +2,8 @@
 // Created by marga on 06/05/2020.
 //
 
-#ifndef UNTITLED13_PLAYER_H
-#define UNTITLED13_PLAYER_H
+#ifndef SCRABBLE_JR_PLAYER_H
+#define SCRABBLE_JR_PLAYER_H
 #include <vector>
 #include <string>
 
@@ -14,6 +14,7 @@ class Player {
     std::vector <char> letters;
     int color;
 public:
+    // constructors
     Player();
     Player(std::string name, int score, std::vector<char> letters, int color);
 
@@ -27,4 +28,4 @@ public:
 };
 
 
-#endif //UNTITLED13_PLAYER_H
+#endif //SCRABBLE_JR_PLAYER_H

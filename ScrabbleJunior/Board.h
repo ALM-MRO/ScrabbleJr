@@ -2,8 +2,8 @@
 // Created by marga on 05/05/2020.
 //
 
-#ifndef UNTITLED13_BOARD_H
-#define UNTITLED13_BOARD_H
+#ifndef SCRABBLE_JR_BOARD_H
+#define SCRABBLE_JR_BOARD_H
 
 #include <iostream>
 #include <vector>
@@ -78,4 +78,4 @@ public:
 };
 
 
-#endif //UNTITLED13_BOARD_H
+#endif //SCRABBLE_JR_BOARD_H

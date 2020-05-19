@@ -10,6 +10,7 @@ Pool::Pool(){
 };
 
 void Pool::addLettersToPool(vector<vector<Letter>> brd){
+
     for (int i = 0; i < brd.size(); i++)
         for (int k = 0; k < brd[0].size(); k++)
             if (brd[i][k].getLet() != ' ')
@@ -25,6 +26,7 @@ vector<char> Pool::shuffleLetters(){
         pl.erase(pl.begin() + rand_index);
     }
     return letters;
+
 }
 
 void Pool::sendLetterToPool(char letter){

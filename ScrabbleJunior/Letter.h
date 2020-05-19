@@ -2,8 +2,8 @@
 // Created by marga on 12/05/2020.
 //
 
-#ifndef UNTITLED13_LETTER_H
-#define UNTITLED13_LETTER_H
+#ifndef SCRABBLE_JR_LETTER_H
+#define SCRABBLE_JR_LETTER_H
 
 #include <vector>
 #include "Word.h"
@@ -16,6 +16,7 @@ class Letter {
     bool intersection;
 
 public:
+    // constructors
     Letter();
     Letter(char let, char word_direction, char state, bool intersection);
 
@@ -29,4 +30,4 @@ public:
 };
 
 
-#endif //UNTITLED13_LETTER_H
+#endif //SCRABBLE_JR_LETTER_H

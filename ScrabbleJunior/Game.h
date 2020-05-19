@@ -2,8 +2,8 @@
 // Created by marga on 08/05/2020.
 //
 
-#ifndef UNTITLED13_GAME_H
-#define UNTITLED13_GAME_H
+#ifndef SCRABBLE_JR_GAME_H
+#define SCRABBLE_JR_GAME_H
 
 #include "Pool.h"
 #include "Player.h"
@@ -118,4 +118,4 @@ public:
 };
 
 
-#endif //UNTITLED13_GAME_H
+#endif //SCRABBLE_JR_GAME_H
