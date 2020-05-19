@@ -45,6 +45,8 @@ void Board::readBoardFile(){
     stringstream ss;
     if (filestream.is_open()) {
         while (getline(filestream, str)){
+            if (str.empty())
+                continue;
             if (file_line == 0) {  // reading first file line
                 ss = stringstream(str);
                 ss >> lines >> aux >> columns;
