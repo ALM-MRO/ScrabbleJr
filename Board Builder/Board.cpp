@@ -24,7 +24,6 @@ using namespace std;
 
 Board::Board(){
     file_word = Words();
-    file_word.createFile();
     boardSize();
     printBoard();
     readFile();
@@ -33,19 +32,23 @@ Board::Board(){
 }
 
 void Board::boardSize() {
-    cout << "Choose the size of the board you wish to build.\n" << "Lines(5-20):";
+    cout << "Enter the name you want to give your file (example: Board):\n";
+    cin >> file_name;
+
+    cout << "Choose the size of the board you wish to build.\n"<<
+    "Number of lines(5-20):";
     cin >> lines;
-    while (cin.fail() || lines < 5 || lines > 20){
+    while (cin.fail() || lines < 5 || lines > 20) {
         cin.clear();
-        cin.ignore(INT_MAX,'\n');
+        cin.ignore(INT_MAX, '\n');
         cout << "Choose again (5-20):";
         cin >> lines;
     }
-    cout << "\nColumns(5-20):";
+    cout << "Number of columns(5-20):";
     cin >> columns;
-    while (cin.fail() || columns < 5 || columns > 20){
+    while (cin.fail() || columns < 5 || columns > 20) {
         cin.clear();
-        cin.ignore(INT_MAX,'\n');
+        cin.ignore(INT_MAX, '\n');
         cout << "Choose again (5-20):\n";
         cin >> columns;
     }
@@ -53,16 +56,32 @@ void Board::boardSize() {
     resetBoard(lines, columns);
     file_word.sizeBoardFile(lines, columns);
 }
+/*void Board::chooseIntersection(){
+    char chose_intersection;
+    cout << "Do you want the words on the board to be all intersected? (Y / N)\n";
+    cin >> chose_intersection;
+    while (cin.fail() || (chose_intersection != 'Y' && chose_intersection != 'y'
+            && chose_intersection != 'n' && chose_intersection != 'N')) {
+        cin.clear();
+        cin.ignore(INT_MAX, '\n');
+        cout << "Enter 'Y' or 'N':\n";
+        cin >> columns;
+    }
+    if (chose_intersection == 'n' || chose_intersection == 'N') { validation.dontIntersect(true);}
+    else validation.dontIntersect(false);
 
+}*/
 void Board::resetBoard(int lines, int columns){
-    cout << "\nThis is your initial board.\n";
-    board.resize(lines);
-    for (int i = 0; i < lines; i++)
-        board[i].resize(columns);
 
-    for (int i = 0; i < lines; i++)
+    cout << "\nThis is your initial board.\n";
+
+    board.resize(lines);
+
+    for (int i = 0; i < lines; i++){
+        board[i].resize(columns);
         for (int k = 0; k < columns; k++)
             board[i][k] = ' ';
+    }
 }
 
 void Board::readFile(){
@@ -87,20 +106,30 @@ void Board::listOfWords(){
     int dic_size = dictionary.size();
     int i = 0;
 
-    if(word_size == 0)
-        cout <<"\n\nHere is a list of 10 words from where you may choose one to place on the board.\n"; // ask Phil
-    else
-        cout <<"\n\nList of available words:\n";
-
+    cout << endl;
     if (count_letter > 13){
-        cout << "0) finish the board\n";
+        cout << "-1) finish the board\n";
     }
 
+    cout << "0) exit\n";
+    if(word_size == 0)
+        cout <<"\nHere is a list of 10 words from where you may choose one to place on the board.\n"; // ask Phil
+    else
+        cout <<"\nList of words:\n";
+
+    int random_times=0;
     while(i < 10) { //choosing 10 random words from dictionary
+
         random_number = rand() % dic_size;
+        random_times ++;
         validation.currentDic(dictionary[random_number]);
         for (auto & c: dictionary[random_number]) c = toupper(c);
-        if (validation.verifyWords()) {
+        if (validation.verifyWordsList()) {
+            if (random_times > 10000){ //VERIFICAR SE É NECESSÁRIO
+                cout << "Our dictionary has no more available words to put on this board\n";
+                if (i == 0){validation.flagEnd(true);}
+                else break;
+            }
             for (int j = 0; j < i; j++){
                 if (temporary_words[j]==dictionary[random_number]) { // make sure words list has no repeated words
                     same_word = true;
@@ -117,7 +146,8 @@ void Board::listOfWords(){
             same_word = false;
         }
     }
-    cout << "11) choose your own word\n" ;
+    cout << "\n11) choose your own word\n" ;
+    validation.changeFlag(false);
 }
 
 bool Board::findWordDic(string u_word) {
@@ -130,29 +160,29 @@ bool Board::findWordDic(string u_word) {
 
 void Board::choosingIndex() {
     if (count_letter < 14){
-    cout << "\nEnter the number of the word you chose (1-10) or 11 if you want to write a word that it's not in the list\n";}
-    else {cout << "\nEnter 1-10 to choose a word from the list, 11 to write your word or 0 to end the board\n";}
+    cout << "\nEnter the number of the word you chose (1-10), 11 if you want to write a word that it's not in the list, or 0 if you want to leave the program.\n";}
+    else {cout << "\nEnter 1-10 to choose a word from the list, 11 to write your word, -1 to end the board, or 0 to exit.\n";}
 
     cin >> chosen_index;
     validation.currentBoard(board);
 
     if (count_letter < 13) {
-        while (cin.fail() || chosen_index < 1 || chosen_index > 11) {
-            cin.clear();
-            cin.ignore(INT_MAX, '\n');
-            cout << "Please, enter a number between 1 and 11.\n";
-            cin >> chosen_index;
-        }
-    } else {
         while (cin.fail() || chosen_index < 0 || chosen_index > 11) {
             cin.clear();
             cin.ignore(INT_MAX, '\n');
             cout << "Please, enter a number between 0 and 11.\n";
             cin >> chosen_index;
         }
+    } else {
+        while (cin.fail() || chosen_index < -1 || chosen_index > 11) {
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+            cout << "Please, enter a number between -1 and 11.\n";
+            cin >> chosen_index;
+        }
     }
 
-    if (chosen_index == 0) { // perguntar a margarida se organizaçao desta função está bem ou separar por idx
+    if (chosen_index == -1) {
         char answer;
         if (count_letter < 21) {
             cout << "Are you sure you want to finish the board? This board only allows 2 players.";
@@ -174,6 +204,7 @@ void Board::choosingIndex() {
 
         if (answer == 'y' || answer == 'Y') { cout << "\nThis is your final board:\n";
         printBoard();
+        file_word.createFile(file_name);
         validation.flagEnd(true);
         char again;
         cout << "\nDo you want to build another board? (Y/N)\n";
@@ -181,13 +212,28 @@ void Board::choosingIndex() {
             while (cin.fail()) {
                 cin.clear();
                 cin.ignore(INT_MAX, '\n');
-                cout << "Enter 'Y' if you want to play again";
+                cout << "Enter 'Y' if you want to play again or 'N' if you want to exit.";
                 cin >> again;
             }
             validation.flagAgain(again == 'y' || again == 'Y');
         }
-        if (answer == 'n' || answer == 'N') { choosingInfo(); }
+        if (answer == 'n' || answer == 'N') { choosingIndex(); }
 
+
+    }
+
+    if (chosen_index == 0) {
+        char exit_aswer;
+        cout << "\nAre you sure you want to exit? (Y / N)\n";
+        cin >> exit_aswer;
+        while (cin.fail() || (exit_aswer != 'Y' && exit_aswer != 'y' && exit_aswer!= 'n' && exit_aswer!= 'N')) {
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+            cout << "Enter 'Y' or 'N'.";
+            cin >> exit_aswer;
+        }
+        if (exit_aswer == 'Y'||exit_aswer == 'y'){validation.flagEnd(true);}
+        else choosingIndex();
 
     }
 
@@ -204,7 +250,7 @@ void Board::choosingIndex() {
             for (auto &u: user_word) u = toupper(u);
             chosen_word = user_word;
         } else {
-            cout << "Your word is invalid. Choose again:\n";
+            cout << "Your word does not belong to our dictionary. Choose again:\n";
             choosingIndex();
         }
     } else {
@@ -215,68 +261,80 @@ void Board::choosingIndex() {
 
 void Board::choosingInfo() {
     cout << "Chosen word: '" << chosen_word << "'" << endl;
-    cout << "Now you may choose the position where the first letter will be placed. " << endl << "Line (uppercase):" ;
+    cout << "Now you may choose the position where the first letter will be placed. " << endl << "Line (uppercase):\n" ;
     cin >> pos_y;
     while ( cin.fail() || pos_y > lines + 'A' - 1 || pos_y < 65 ) {
         cin.clear();
         cin.ignore(INT_MAX, '\n');
-        cout << "Please, enter a valid line:";
+        cout << "Please, enter a valid line:\n";
         cin >> pos_y;
     }
-    cout << "Column (lowercase):" ;
+    cout << "Column (lowercase):\n" ;
     cin >> pos_x;
 
     while ( cin.fail() || pos_x > columns + 'a' - 1  || pos_x < 97 ) {
         cin.clear();
         cin.ignore(INT_MAX, '\n');
-        cout << "Please, enter a valid column: ";
+        cout << "Please, enter a valid column:\n ";
         cin >> pos_x;
     }
 
-    cout << "And now choose the direction(H or V): ";
+    cout << "And now choose the direction(H or V):\n ";
     cin >> dir;
 
     while ( cin.fail() || ((dir != 'H' && dir != 'h')&& (dir != 'V' && dir != 'v')) ) {
         cin.clear();
         cin.ignore(INT_MAX, '\n');
-        cout << "Please, enter a valid direction (H or V):";
+        cout << "Please, enter a valid direction (H or V):\n";
         cin >> dir;
     }
+    if (dir == 'h') dir = 'H';
+    if (dir == 'v') dir = 'V';
+
 }
 
 void Board::changeBoard(){
     int s = chosen_word.size();
-    //validation.counter++; //-- to validate not intersecting in first word placed --//
-    validation.changeIntersection(false);
+//    validation.changeIntersection(false);
     bool flag = false;
+    int x =  0, y = 0;
 
-    if (dir == 'H'|| dir =='h'){
-        for (idx = 0; idx < s; idx++) {
+    for (idx = 0; idx < s; idx++) {
+            if (dir == 'H') x = idx;
+            if (dir == 'V') y = idx;
             flag  = false;
-            if (!validation.verifyLimits(pos_y - 'A',pos_x - 'a' + idx))
-                {cout << "\n(The word is overcoming the limits of the board)\n" ; break;}
 
-            if (!validation.verifyIntersection(board[pos_y - 'A'][pos_x - 'a' + idx],chosen_word[idx]))
-                {cout << "\n(The word is not intersecting other words in places that have the same letter)\n"; break;}
+            if (!validation.verifyLimits(pos_y - 'A'+ y,pos_x - 'a' + x))
+                {cout << "\n(The word is overcoming the limits of the board)\n"; break;}
 
-            if(!validation.verifySide(pos_y - 'A',pos_x - 'a' + idx, idx, 'H'))
+            if (!validation.verifyIntersection(board[pos_y - 'A'+y][pos_x - 'a' + x],chosen_word[idx], idx))
+                {cout << "\n(The word is intersecting other words in places that have not the same letter)\n"; break;}
+
+            if(!validation.verifySide(pos_y - 'A'+y,pos_x - 'a' + x, idx, dir,s))
                 {cout << "\n(The word cannot have anny letter around it, except for those in which intersect other words)\n"; break;}
 
-            validation.forceIntersection();
+//            validation.forceIntersection();
             flag = true;
-        }
-        validation.changeFlag(flag);
 
-        if(validation.verifyRules()){
-            for (idx = 0; idx < s; idx++) {
-                if (board[pos_y - 'A'][pos_x - 'a' + idx] == ' '){
-                    board[pos_y - 'A'][pos_x - 'a' + idx] = chosen_word[idx];
-                }
+    }
+    validation.changeFlag(flag);
+
+    if(validation.verifyRules()){
+        for (idx = 0; idx < s; idx++) {
+            if (dir == 'H') x = idx;
+            if (dir == 'V') y = idx;
+            if (board[pos_y - 'A'+ y][pos_x - 'a' + x] == ' '){
+                board[pos_y - 'A'+ y][pos_x - 'a' + x] = chosen_word[idx];
             }
         }
     }
 
-    if (dir == 'V' || dir == 'v'){
+    //if (!validation.forceIntersection()){cout << "(The word has to be intersected in, at least, one letter)\n";}
+
+    if (validation.verifyRules())
+        file_word.writeInFile(pos_x, pos_y, dir, chosen_word );
+
+    /*if (dir == 'V' || dir == 'v'){
         for (idx = 0; idx < s; idx++) {
             flag = false;
             if (!validation.verifyLimits(pos_y - 'A' + idx, pos_x - 'a'))
@@ -285,7 +343,7 @@ void Board::changeBoard(){
             if (!validation.verifyIntersection(board[pos_y - 'A' + idx][pos_x - 'a'],chosen_word[idx]))
                 {cout << "\n(The word is not intersecting other words in places that have the same letter)\n"; break;}
 
-            if (!validation.verifySide(pos_y - 'A' + idx,pos_x - 'a',idx,'V'))
+            if (!validation.verifySide(pos_y - 'A' + idx,pos_x - 'a',idx,'V',s))
                 {cout << "\n(The word cannot have anny letter around it, except for those in which intersect other words)\n"; break;}
 
             validation.forceIntersection();
@@ -299,17 +357,13 @@ void Board::changeBoard(){
                 }
             }
         }
-    }
-    if (!validation.forceIntersection()){cout << "(The word has to be intersected in at least one letter)\n";}
-
-    if (validation.verifyRules()){
-        file_word.writeInFile(pos_x, pos_y, dir, chosen_word );
-    }
+    }*/
 }
 
 
 void Board::printBoard(){
     count_letter = 0;
+
     cout <<"\n";
     setColor(YELLOW, BLACK);
     cout << "  ";
@@ -327,5 +381,11 @@ void Board::printBoard(){
             if (board[i][k]!=' ') count_letter++;
         }
     }
+
     setColor(WHITE, BLACK);
+    cout << endl;
+}
+
+Rules Board::getValidation() {
+    return validation;
 }
